@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  profileId Int      @map("profile_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("update_at")
+
+  posts   Post[]
+  profile Profile @relation(fields: [profileId], references: [id])
+
+  @@map("users")
+}
+
+model Profile {
+  id        Int       @id @default(autoincrement())
+  birthdate DateTime?
+  nickname  String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @default(now()) @map("update_at")
+
+  user User?
+
+  @@map("profiles")
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.LongText
+  authorId  Int      @map("author_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("update_at")
+
+  author     User           @relation(fields: [authorId], references: [id])
+  categories CategoryPost[]
+
+  @@map("posts")
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("update_at")
+
+  posts CategoryPost[]
+
+  @@map("categories")
+}
+
+model CategoryPost {
+  id         Int      @id @default(autoincrement())
+  categoryId Int      @map("category_id")
+  postId     Int      @map("post_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @map("update_at")
+
+  category Category @relation(fields: [categoryId], references: [id])
+  post     Post     @relation(fields: [postId], references: [id])
+
+  @@unique([postId, categoryId])
+  @@map("category_post")
+}
