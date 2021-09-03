@@ -1,5 +1,4 @@
 import { Controller, Get } from '@nestjs/common';
-import { userInfo } from 'os';
 import { AppService } from './app.service';
 
 @Controller()
